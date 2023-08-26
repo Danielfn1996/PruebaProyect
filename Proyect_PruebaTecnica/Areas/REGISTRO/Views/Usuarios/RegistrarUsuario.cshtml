@@ -1,0 +1,209 @@
+﻿@model Models.Entrada.PersonaDTO
+@{
+	Layout = "_Layout";
+}
+
+
+<form method="post" class="needs-validation container" enctype="multipart/form-data" asp-controller="Usuarios" asp-action="RegistrarUsuario">
+	<header class="row">
+		<h1 class="border-bottom-required">Registro Usuario</h1>
+	</header>
+	<div style='text-align:right' class="rows">
+		<p>Los campos marcados con <span class="asterisco">*</span> son obligatorios</p>
+	</div>
+	<hr />
+	@Html.AntiForgeryToken()
+
+	<div id="camposObligatorios" style="display:none" class="alert alert-danger alert-dismissible" role="alert">
+		<div>Existen campos obligatorios sin diligenciar.</div>
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+
+	<div id="camposAdcionales" style="display:none" class="alert alert-danger alert-dismissible" role="alert">
+		<div>Debe diligenciar al menos un campo de informacion de contacto.</div>
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+
+
+	<div class="row">
+		<div class="col-sm-5 col-md-6">
+			<label asp-for="Nombre" col-form-label">Nombre<span style="color: red;">*</span></label>
+			@Html.TextAreaFor(m => m.Nombre, new{@id="Nombre", @name="Nombre", @class="form-control"})
+			@Html.ValidationMessageFor(m => m.Nombre,  "", new {@class = "text-danger" })
+		</div>
+
+		<div class="col-sm-5 col-md-6">
+			<label asp-for="Lugar" col-form-label">Apellido<span style="color: red;">*</span></label>
+			@Html.TextAreaFor(m => m.Apellido, new{@id="Apellido", @name="Apellido", @class="form-control"})
+			@Html.ValidationMessageFor(m => m.Apellido,  "", new {@class = "text-danger" })
+		</div>
+
+		<div class="col-sm-5 col-md-6">
+			<label asp-for="Numero de documento" col-form-label">Número de documento<span style="color: red;">*</span></label>
+			@Html.TextAreaFor(m => m.NumDocumento, new{@id="NumDocumento", @name="NumDocumento", @class="form-control"})
+			@Html.ValidationMessageFor(m => m.NumDocumento,  "", new {@class = "text-danger" })
+		</div>
+
+		<div class="col-sm-4">
+			<label asp-for="FechaNacimiento" col-form-label">Fecha Nacimiento (dd/mm/aaaa)</label>
+			@Html.TextBoxFor(model => model.FechaNacimiento, new { @type = "date",  @class="form-control" })
+			@Html.ValidationMessageFor(m => m.FechaNacimiento,  "", new {@class = "text-danger"})
+		</div>
+
+		<div class="col-sm-4">
+			<label asp-for="correo" col-form-label">Correo Electronico</label>
+			<input type="text" name="correo" id="CorreoElectronico1"  class="form-control"/>
+		</div>
+
+		<div class="col-sm-4">
+			<label asp-for="NumTelefono" col-form-label">Número Telefonico</label>
+			<input type="tel" name="NumTelefono" id="NumTelefono1"  class="form-control"/>
+		</div>
+
+		<div class="col-sm-4">
+			<label asp-for="Direccion" col-form-label">Dirección de residencia</label>
+			<input type="text" name="Direccion" id="Direccion1" class="form-control" />
+		</div>
+
+		<div class="form-group"><br></div>
+
+		<h2>Informacion Adicional</h2>
+		<div id="infoAdicional" class="row">
+			<div class="col-sm-4" id="dvCorreo2">
+				<label asp-for="correo" col-form-label">Correo Electronico</label>
+				<input type="text" name="correo" id="CorreoElectronico2" class="form-control" />
+			</div>
+
+			<div class="col-sm-4" id="NumTelefono2">
+				<label asp-for="NumTelefono" col-form-label">Número Telefonico</label>
+				<input type="tel" name="NumTelefono" id="NumTelefono2" class="form-control" />
+			</div>
+
+			<div class="col-sm-4" id="Direccion2">
+				<label asp-for="Direccion" col-form-label">Dirección de residencia</label>
+				<input type="text" name="Direccion" id="Direccion2" class="form-control" />
+			</div>
+		</div>
+
+
+
+	</div>
+
+	<hr />
+	@* <button type="submit" class="btn btn-primary" >Crear Usuario</button> *@
+	<div class="row">
+		<div class="col-sm-2">
+			<button type="button" class="btn btn-primary" onclick="CrearUsuario()">Crear Convenio</button>
+		</div>
+
+	</div>
+</form>
+
+
+<script>
+	let correos = [];
+	let direcciones = [];
+	let numTelefono = [];
+
+	function CrearUsuario() {
+		var respuesta = validarCampos();
+		var InfoContactos = crearListaContacto();
+
+		debugger
+		if (!respuesta) {
+			$("#camposAdcionales").css("display", "block");
+			$('html,body').scrollTop(0);
+		}
+	
+		var formData = new FormData();
+		formData.append('Nombre', document.getElementById("Nombre").value)
+		formData.append('Apellido', document.getElementById("Apellido").value)
+		formData.append('NumDocumento', document.getElementById("NumDocumento").value)
+		formData.append('FechaNacimiento', document.getElementById("FechaNacimiento").value)
+		formData.append('correo', document.getElementById("CorreoElectronico1").value)
+		formData.append('numeroTelefono', document.getElementById("NumTelefono1").value)
+		formData.append('direccionResidencia', document.getElementById("Direccion1").value)
+
+		$.ajax(
+			{
+				url: "/REGISTRO/Usuarios/RegistrarUsuario",
+				data: formData,
+				processData: false,
+				contentType: false,
+				type: "POST",
+				success: function (data) {
+					alert("success!!");
+					document.getElementById("RegistrarUsuario").reset();
+
+				
+				},
+				error: function (data) {
+					if (data.success === false && data.codigo === -9) {
+						alert("Ocurrio un error inesperado al registrar al usuario");
+					} else {
+						alert("El usuario ya se encuentra registrado");
+					}
+
+				}
+			}
+		);
+
+
+	}
+
+	function validarCampos() {
+
+		var respuesta = true
+		if (document.getElementById("CorreoElectronico1").value === '' && document.getElementById("CorreoElectronico2").value === '') {
+			respuesta = false
+			return respuesta;
+		}
+
+		if (document.getElementById("Direccion1").value === '' && document.getElementById("Direccion2").value === '') {
+			respuesta = false
+			return respuesta;
+		}
+
+		if (document.getElementById("NumTelefono2").value === '' && document.getElementById("NumTelefono2").value === '') {
+			respuesta = false
+			return respuesta;
+		}
+
+		return respuesta;
+	}
+
+	function crearListaContacto() {
+
+		var InfoContactos = [];
+
+		var infoContacto = {
+			correo: document.getElementById('CorreoElectronico1').value,
+			numeroTelefono: document.getElementById('NumTelefono1').value,
+			direccionResidencia: document.getElementById('Direccion1').value
+		};
+
+		InfoContactos.push(infoContacto);
+
+
+		if (document.getElementById('CorreoElectronico2').value != '' || document.getElementById('NumTelefono2').value != '' || document.getElementById('Direccion2').value != '') {
+
+			var infoContacto2 = {
+				correo: document.getElementById('CorreoElectronico2').value,
+				numeroTelefono: document.getElementById('NumTelefono2').value,
+				direccionResidencia: document.getElementById('Direccion2').value
+			};
+		}
+
+		InfoContactos.push(infoContacto2);
+
+		return InfoContactos;
+	}
+
+	var input = document.getElementById('NumDocumento');
+	input.addEventListener('input', function () {
+		if (this.value.length > 12)
+			this.value = this.value.slice(0, 12);
+	})
+
+
+</script>
