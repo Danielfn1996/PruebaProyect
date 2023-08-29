@@ -28,83 +28,58 @@ namespace Proyect_PruebaTecnica.Areas.REGISTRO.Controllers
 			return View();
 		}
 
+
+
 		[HttpPost]
-		public JsonResult RegistrarUsuario(PersonaDTO model)
+		public ActionResult RegistrarUsuario(PersonaDTO model)
 		{
-			var result = new
-			{
-				Success = true,
-				Message = "",
-				Codigo = -9
 
-			};
-
-			if (ModelState.IsValid)
+			var id = _context.Personas.Any(x => x.NumDocumento == model.NumDocumento);
+			if (id)
 			{
-				var id = _context.Personas.Any(x => x.NumDocumento == model.NumDocumento);
-				if (id)
+				ViewBag.codigo = 1;
+				return View();
+
+			}
+			else
+			{
+				try
 				{
-					result =new
+					var persona = new Persona();
+					persona.NumDocumento = model.NumDocumento;
+					persona.Nombres = model.Nombre;
+					persona.Apellidos = model.Apellido;
+					persona.FechaNacimiento = DateTime.Parse(model.FechaNacimiento);
+					_context.Personas.Add(persona);
+					_context.SaveChanges();
+					var idPerson = _context.Set<Persona>()
+														.OrderByDescending(t => t.Id)
+														.FirstOrDefault();
+
+
+					foreach (InfoContactoDTO info in model.InfoContacto)
 					{
-						Success = false,
-						Message = "Ya existe un usuario registrado con el número de identificación",
-						Codigo = 1
-					};
-
-				}
-				else
-				{
-					try {
-						var persona = new Persona();
-						persona.NumDocumento = model.NumDocumento;
-						persona.Nombres = model.Nombre;
-						persona.Apellidos = model.Apellido;
-						persona.FechaNacimiento = DateTime.Parse(model.FechaNacimiento);
-						_context.Personas.Add(persona);
-						_context.SaveChanges();
-						var idPerson = _context.Set<Persona>()
-															.OrderByDescending(t => t.Id)
-															.FirstOrDefault();
-
 						var infoContacto = new ContactoPersona();
 						{
-							infoContacto.NumeroTelefono1 = model.numeroTelefono;
-							infoContacto.DireccionResidencia1 = model.direccionResidencia;
-							infoContacto.CorreoElectronico1 = model.correo;
+							infoContacto.NumeroTelefono1 = info.numeroTelefono;
+							infoContacto.DireccionResidencia1 = info.direccionResidencia;
+							infoContacto.CorreoElectronico1 = info.correo;
 							infoContacto.IdPersona = idPerson.Id;
 						};
 						_context.ContactoPersonas.Add(infoContacto);
 						_context.SaveChanges();
 
-						result = new
-						{
-							Success = true,
-							Message = "Se registro correctamente el usuario",
-							Codigo = 0
-						};
 					}
-					catch
-					{
-						result = new
-						{
-							Success = false,
-							Message = "Ocurrio un error inesperado intente mas tarde",
-							Codigo =-9
-						};
-					}
-				
+
+					return View(ViewBag.codigo = 0);
 				}
-			}
-			else
-			{
-				result = new
+				catch
 				{
-					Success = false,
-					Message = "Faltan campos por diligenciar",
-					Codigo = -9
-				};
+					return View(ViewBag.codigo = -9);
+				}
+
 			}
-			return Json(result);
+
 
 		}
 
@@ -123,7 +98,7 @@ namespace Proyect_PruebaTecnica.Areas.REGISTRO.Controllers
 		}
 
 		// POST: UsuariosController/Create
-	
+
 
 		// GET: UsuariosController/Edit/5
 		public ActionResult Edit(int id)
@@ -132,7 +107,7 @@ namespace Proyect_PruebaTecnica.Areas.REGISTRO.Controllers
 		}
 
 		// POST: UsuariosController/Edit/5
-	
+
 
 		// GET: UsuariosController/Delete/5
 		public ActionResult Delete(int id)
