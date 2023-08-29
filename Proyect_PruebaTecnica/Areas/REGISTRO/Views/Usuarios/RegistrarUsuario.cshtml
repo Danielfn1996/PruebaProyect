@@ -52,7 +52,8 @@
 
 		<div class="col-sm-4">
 			<label asp-for="correo" col-form-label">Correo Electronico</label>
-			<input type="text" name="correo" id="CorreoElectronico1"  class="form-control"/>
+			<input type="text" name="correo" id="correo" class="form-control" />
+			@Html.ValidationMessageFor(m => m.correo,  "", new {@class = "text-danger"})
 		</div>
 
 		<div class="col-sm-4">
@@ -106,15 +107,27 @@
 	let numTelefono = [];
 
 	function CrearUsuario() {
+	
+		
 		var respuesta = validarCampos();
 		var InfoContactos = crearListaContacto();
 
-		debugger
+		InfoContacto = [
+			{ "tipo": "correo", "valor": "persona@example.com" },
+			{ "tipo": "numeroTelefono", "valor": "Calle Principal, 123" },
+			{ "tipo": "direccionResidencia", "valor": "555-123-4567" }
+		]
+
+		var formata = new FormData();
+		formata.append('InfoContacto', InfoContacto)
+
+
 		if (!respuesta) {
 			$("#camposAdcionales").css("display", "block");
 			$('html,body').scrollTop(0);
 		}
 	
+		debugger
 		var formData = new FormData();
 		formData.append('Nombre', document.getElementById("Nombre").value)
 		formData.append('Apellido', document.getElementById("Apellido").value)
@@ -123,6 +136,7 @@
 		formData.append('correo', document.getElementById("CorreoElectronico1").value)
 		formData.append('numeroTelefono', document.getElementById("NumTelefono1").value)
 		formData.append('direccionResidencia', document.getElementById("Direccion1").value)
+		formData.append('InfoContacto', formata)
 
 		$.ajax(
 			{
@@ -132,16 +146,18 @@
 				contentType: false,
 				type: "POST",
 				success: function (data) {
-					alert("success!!");
-					document.getElementById("RegistrarUsuario").reset();
+
+					if (data.success === false && data.codigo === 1) {
+						alert(data.Message);
+					} else if (data.success === true ) {
+						alert("Se registro correctamente el usuario");
+					}
 
 				
 				},
 				error: function (data) {
 					if (data.success === false && data.codigo === -9) {
 						alert("Ocurrio un error inesperado al registrar al usuario");
-					} else {
-						alert("El usuario ya se encuentra registrado");
 					}
 
 				}
@@ -204,6 +220,7 @@
 		if (this.value.length > 12)
 			this.value = this.value.slice(0, 12);
 	})
+
 
 
 </script>

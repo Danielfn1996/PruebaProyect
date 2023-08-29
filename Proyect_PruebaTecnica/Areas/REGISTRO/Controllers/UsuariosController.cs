@@ -41,10 +41,10 @@ namespace Proyect_PruebaTecnica.Areas.REGISTRO.Controllers
 
 			if (ModelState.IsValid)
 			{
-				var id = _context.Personas.Where(x => x.NumDocumento == model.NumDocumento).Select(x => x.NumDocumento);
-				if (!System.DBNull.Value.Equals(id))
+				var id = _context.Personas.Any(x => x.NumDocumento == model.NumDocumento);
+				if (id)
 				{
-					result = new
+					result =new
 					{
 						Success = false,
 						Message = "Ya existe un usuario registrado con el número de identificación",
@@ -94,6 +94,15 @@ namespace Proyect_PruebaTecnica.Areas.REGISTRO.Controllers
 					}
 				
 				}
+			}
+			else
+			{
+				result = new
+				{
+					Success = false,
+					Message = "Faltan campos por diligenciar",
+					Codigo = -9
+				};
 			}
 			return Json(result);
 

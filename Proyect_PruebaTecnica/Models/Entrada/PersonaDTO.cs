@@ -6,12 +6,12 @@ namespace Models.Entrada
     {
         
         [Required(ErrorMessage = "Este campo es obligatorio")]
-		[RegularExpression(@"^([a-zA-Z\s]+)*$", ErrorMessage = "Verifique los caracteres ingresados")]
+		[RegularExpression(@"^([a-zA-Z]+)*$", ErrorMessage = "Verifique los caracteres ingresados")]
 
 		public string Nombre { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
-		[RegularExpression(@"^([a-zA-Z\s]+)*$", ErrorMessage = "Verifique los caracteres ingresados")]
+		[RegularExpression(@"^([a-zA-Z]+)*$", ErrorMessage = "Verifique los caracteres ingresados")]
 		public string Apellido { get; set; } = string.Empty;
 
 		[Required(ErrorMessage = "Este campo es obligatorio")]
@@ -21,6 +21,8 @@ namespace Models.Entrada
 		[Required(ErrorMessage = "Este campo es obligatorio")]
         public string FechaNacimiento{ get; set; } = string.Empty;
 
+	
+		[RegularExpression(@"^(^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+$){2,}", ErrorMessage = "El formato del correo electrónico no es válido.")]
 		public string correo { get; set; } = string.Empty;
 		public string numeroTelefono { get; set; } = string.Empty;
 		public string direccionResidencia { get; set; } = string.Empty;
